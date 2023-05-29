@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Welcome message and ASCII art
+cat << "EOF"
+            _                   
+  ,_   _   // __,        ,_    .
+_/ (__(/__(/_(_/(__(_/_ _/_)__/_
+                   _/_  /       
+                  (/   /        
+
+The easiest way to turn your Raspberry Pi into a Tor middle relay.
+
+A free tool by Science & Design - https://scidsg.org
+EOF
+
 # Verify the CPU architecture
 architecture=$(dpkg --print-architecture)
 echo "CPU architecture is $architecture"
@@ -333,6 +346,7 @@ if __name__ == '__main__':
 EOL
 
 wget https://raw.githubusercontent.com/scidsg/brand-resources/main/logos/splash-sm.png
+
 
 # Add a line to the .bashrc to run the relay_status.py script on boot
 if ! grep -q "sudo python3 /home/pi/relay_status.py" /home/pi/.bashrc; then
