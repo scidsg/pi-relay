@@ -64,51 +64,60 @@ def get_accounting_max():
     return 'N/A'
 
 def get_flags():
-    with Controller.from_port(port=9051) as controller:
-        controller.authenticate() 
-        ns = controller.get_network_status(controller.get_info('fingerprint'))
-        return ', '.join(ns.flags)
+    try:
+        with Controller.from_port(port=9051) as controller:
+            controller.authenticate() 
+            ns = controller.get_network_status(controller.get_info('fingerprint'))
+            return ', '.join(ns.flags) if ns.flags else 'No flags yet'
+    except Exception as e:
+        print(f"Error getting flags: {e}")
+        return 'No flags yet'
 
 def get_status_info():
-    with Controller.from_port(port=9051) as controller:  
-        controller.authenticate()  
+    try:
+        with Controller.from_port(port = 9051) as controller:  
+            controller.authenticate()  
 
-        tor_version = controller.get_version()
-        fingerprint = controller.get_info("fingerprint")[-8:]
-        nickname = get_tor_nickname()
-        flags = get_flags()
+            tor_version = controller.get_version()
+            fingerprint = controller.get_info("fingerprint")[-8:]
+            nickname = get_tor_nickname()
+            flags = get_flags()  # Add this line
 
-        # Uptime in hours
-        uptime = controller.get_info("uptime") 
-        uptime_hours = int(uptime) // 3600
-        if uptime_hours == 0:
-            uptime_hours = "<1"
+            # Uptime in hours
+            uptime = controller.get_info("uptime") 
+            uptime_hours = int(uptime) // 3600
+            if uptime_hours == 0:
+                uptime_hours = "<1"
 
-        # Accounting
-        try:
-            accounting_bytes = controller.get_info("accounting/bytes").split()
-            read_bytes, written_bytes = int(accounting_bytes[0]), int(accounting_bytes[1])
-            current_bytes = read_bytes + written_bytes
-        except Exception as e:
-            print(f"Unable to fetch accounting bytes: {e}")
-            read_bytes, written_bytes, current_bytes = "N/A", "N/A", 0
+            # Accounting
+            try:
+                accounting_bytes = controller.get_info("accounting/bytes").split()
+                read_bytes, written_bytes = int(accounting_bytes[0]), int(accounting_bytes[1])
+                current_bytes = read_bytes + written_bytes  # the current usage
+            except Exception as e:
+                print(f"Unable to fetch accounting bytes: {e}")
+                read_bytes, written_bytes, current_bytes = "N/A", "N/A", 0
 
-        accounting_max = get_accounting_max()
+            accounting_max = get_accounting_max()
 
-        status_info = {
-            "tor_version": tor_version,
-            "nickname": nickname,
-            "fingerprint": fingerprint,
-            "uptime_hours": uptime_hours,
-            "read_bytes": bytes_to_human_readable(read_bytes),
-            "written_bytes": bytes_to_human_readable(written_bytes),
-            "accounting_max": bytes_to_human_readable(accounting_max),
-            "current_bytes": current_bytes,
-            "max_bytes": accounting_max,
-            "flags": flags,  # include the flags in the status info
-        }
+            status_info = {
+                "tor_version": tor_version,
+                "nickname": nickname,
+                "fingerprint": fingerprint,
+                "uptime_hours": uptime_hours,
+                "flags": flags,  # Add this line
+                "read_bytes": bytes_to_human_readable(read_bytes),
+                "written_bytes": bytes_to_human_readable(written_bytes),
+                "accounting_max": bytes_to_human_readable(accounting_max),
+                "current_bytes": current_bytes,
+                "max_bytes": accounting_max,
+            }
 
-    return status_info
+        return status_info
+
+    except stem.ControllerError as e:
+        print(f"Controller error: {e}")
+        return None
 
 def draw_bar_chart(draw, total_width, y_start, current_value, max_value):
     # If max_value is 0, don't draw the chart
@@ -199,7 +208,7 @@ def main():
     epd = epd2in13_V3.EPD()
     epd.init()
     print("EPD initialized")
-    
+
     # Display splash screen
     script_path = os.path.dirname(os.path.realpath(__file__))
     splash_screen_path = os.path.join(script_path, 'splash-sm.png')
@@ -208,7 +217,10 @@ def main():
     try:
         while True:
             status_info = get_status_info()
-            display_status(epd, status_info)
+            if status_info is not None:
+                display_status(epd, status_info)
+            else:
+                print("Error fetching status info. Retrying...")
             time.sleep(60)
     except KeyboardInterrupt:
         print('Exiting...')
