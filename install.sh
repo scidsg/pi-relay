@@ -12,6 +12,7 @@ The easiest way to turn your Raspberry Pi into a Tor middle relay.
 
 A free tool by Science & Design - https://scidsg.org
 EOF
+sleep 3
 
 # Verify the CPU architecture
 architecture=$(dpkg --print-architecture)
