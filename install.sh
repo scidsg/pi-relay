@@ -1,7 +1,29 @@
 #!/bin/bash
 
+# Verify the CPU architecture
+architecture=$(dpkg --print-architecture)
+echo "CPU architecture is $architecture"
+
+# Install apt-transport-https
+sudo apt-get install -y apt-transport-https whiptail unattended-upgrades
+
+whiptail --title "RelayPi Installation" --msgbox "RelayPi transforms your Raspberry Pi intro a Tor Network middle relay.\n\nBefore continuing, please modify your router's port forwarding settings to allow traffic over port 443 for this device.\n\nIf you don't know what port forwarding is, stop now and search for your router's specific instructions." 16 64
+
+# Determine the codename of the operating system
+codename=$(lsb_release -c | cut -f2)
+
+# Add the tor repository to the sources.list.d
+echo "deb [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | sudo tee /etc/apt/sources.list.d/tor.list
+echo "deb-src [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | sudo tee -a /etc/apt/sources.list.d/tor.list
+
+# Download and add the gpg key used to sign the packages
+wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | sudo tee /usr/share/keyrings/tor-archive-keyring.gpg >/dev/null
+
+# Update system packages
 sudo apt-get update
-sudo apt-get install -y whiptail tor nyx
+
+# Install tor and tor debian keyring
+sudo apt-get install -y tor deb.torproject.org-keyring nyx
 
 # Function to configure Tor as a middle relay
 configure_tor() {
@@ -144,9 +166,14 @@ def get_accounting_max():
                     print(f"Unexpected unit in AccountingMax: {unit}")
                     return 'N/A'
 
-                # Return twice the value, to reflect the user's intended limit
                 return 2 * value_in_bytes
     return 'N/A'
+
+def get_flags():
+    with Controller.from_port(port=9051) as controller:
+        controller.authenticate() 
+        ns = controller.get_network_status(controller.get_info('fingerprint'))
+        return ', '.join(ns.flags)
 
 def get_status_info():
     with Controller.from_port(port=9051) as controller:  
@@ -155,10 +182,13 @@ def get_status_info():
         tor_version = controller.get_version()
         fingerprint = controller.get_info("fingerprint")[-8:]
         nickname = get_tor_nickname()
+        flags = get_flags()
 
         # Uptime in hours
         uptime = controller.get_info("uptime") 
         uptime_hours = int(uptime) // 3600
+        if uptime_hours == 0:
+            uptime_hours = "<1"
 
         # Accounting
         try:
@@ -181,6 +211,7 @@ def get_status_info():
             "accounting_max": bytes_to_human_readable(accounting_max),
             "current_bytes": current_bytes,
             "max_bytes": accounting_max,
+            "flags": flags,  # include the flags in the status info
         }
 
     return status_info
@@ -204,6 +235,17 @@ def draw_bar_chart(draw, total_width, y_start, current_value, max_value):
     # Draw the outline of the full bar chart.
     draw.rectangle([(x_start, y_start), (x_start + total_width, y_start + 10)], outline=0)
 
+def truncate_text(draw, font, text, max_width):
+    width, _ = draw.textsize(text, font=font)
+    if width <= max_width:
+        return text
+
+    while width > max_width:
+        text = text[:-1]
+        width, _ = draw.textsize(text + '...', font=font)
+        
+    return text + '...'
+
 def display_status(epd, status_info):
     print('Displaying status...')
     image = Image.new('1', (epd.height, epd.width), 255)
@@ -222,23 +264,23 @@ def display_status(epd, status_info):
     else:
         percentage_str = f"{int(percentage)}%"
 
-    # Generate each line of status text and wrap it individually
+    # Generate each line of status text
     lines = [
         f"Tor: {status_info['tor_version']}",
         f"Nickname: {status_info['nickname']}",
-        f"Fingerprint: {status_info['fingerprint']}", 
+        f"Fingerprint: {status_info['fingerprint']}",
         f"Uptime: {status_info['uptime_hours']} hours",
-        f"Accounting: {bytes_to_human_readable(status_info['current_bytes'])} / {status_info['accounting_max']} ({percentage_str})"    ]
-
-    lines = [textwrap.fill(line, width=39) for line in lines]  # Wrap each line individually
-    status_text = '\n'.join(lines)  # Join the wrapped lines with line breaks
+        f"Flags: {status_info['flags']}",  # add this line
+        f"Accounting: {bytes_to_human_readable(status_info['current_bytes'])} / {status_info['accounting_max']} ({percentage_str})",
+    ]
 
     font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf', 10)
 
     y_text = 5
     x_text = 5
-    for line in status_text.split('\n'):  # Split the status text into lines again
-        draw.text((x_text, y_text), line, font=font, fill=0)
+    for line in lines:
+        truncated_line = truncate_text(draw, font, line, epd.height - 10) 
+        draw.text((x_text, y_text), truncated_line, font=font, fill=0)
         y_text += 15
 
     # After the text, draw the bar chart. Increase y_text by desired pixels.
@@ -303,13 +345,7 @@ fi
 
 configure_display
 
-# Function to decide if Nyx should be launched
-launch_nyx() {
-    if (whiptail --title "Launch Nyx" --yesno "Would you like to launch Nyx?" 10 60) then
-        sudo -u debian-tor nyx
-    else
-        echo "You can launch Nyx anytime by typing 'sudo -u debian-tor nyx' in the terminal."
-    fi
-}
+# Configure automatic updates
+curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/auto-updates.sh | bash
 
-launch_nyx
+sudo reboot
