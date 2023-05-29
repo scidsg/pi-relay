@@ -139,13 +139,13 @@ def draw_bar_chart(draw, total_width, y_start, current_value, max_value):
     draw.rectangle([(x_start, y_start), (x_start + total_width, y_start + 10)], outline=0)
 
 def truncate_text(draw, font, text, max_width):
-    width, _ = draw.textsize(text, font=font)
+    width = draw.textbbox((0, 0), text, font=font)[2]  # Use textbbox instead of textsize
     if width <= max_width:
         return text
 
     while width > max_width:
         text = text[:-1]
-        width, _ = draw.textsize(text + '...', font=font)
+        width = draw.textbbox((0, 0), text + '...', font=font)[2]  # Use textbbox instead of textsize
         
     return text + '...'
 
