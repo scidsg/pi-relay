@@ -132,6 +132,22 @@ fi
 
 configure_display
 
+configure_two_factor() {
+    if (whiptail --title "Configure Two-Factor Authentication" --yesno "We recommend setting up two-factor authentication for your relay since it'll be exposed to the internet. Would you like to configure two-factor now?" 10 60) then
+        wget https://raw.githubusercontent.com/scidsg/tools/main/two-factor-setup.sh
+chmod +x two-factor-setup.sh
+./two-factor-setup.sh
+fi
+    else
+        echo "You can configure two-factor any time by running:
+wget https://raw.githubusercontent.com/scidsg/tools/main/two-factor-setup.sh
+chmod +x two-factor-setup.sh
+./two-factor-setup.sh        "
+    fi
+}
+
+configure_two_factor
+
 # Configure automatic updates
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/auto-updates.sh | bash
 
