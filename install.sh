@@ -116,7 +116,7 @@ else
     echo "SPI interface is already enabled."
 fi
 
-# Download the app python
+# Download the app
 wget https://raw.githubusercontent.com/scidsg/relay-pi/main/relay_status.py
 
 # Download the splash screen
