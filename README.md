@@ -21,5 +21,6 @@ Pi Relay is designed to make setting up a Tor relay easy for everyone:
 * Automatic relay naming
 * Nyx setup included
 * Automatic Update setup included
+* Add an e-ink display to see up-to-date information about your relay's usage
 
 ![IMG_5064 2](https://github.com/scidsg/relay-pi/assets/28545431/f2051475-0191-416b-9522-2f9e18cfba44)
