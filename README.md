@@ -16,7 +16,7 @@ Pi Relay is designed to make setting up a Tor relay easy for everyone:
 * Smart defaults
 * Tor repositories automatically included
 * Censorship resistant settings
-* Set limits on your relay's your data usage
+* Set limits on your relay's data usage
 * Settings that minimize risk - only middle relay config
 * Automatic relay naming
 * Nyx setup included
