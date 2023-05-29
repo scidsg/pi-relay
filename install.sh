@@ -2,11 +2,12 @@
 
 # Welcome message and ASCII art
 cat << "EOF"
-            _                   
-  ,_   _   // __,        ,_    .
-_/ (__(/__(/_(_/(__(_/_ _/_)__/_
-                   _/_  /       
-                  (/   /        
+                  _           
+                 //           
+   _   o __  _  //  __.  __  ,
+  /_)_<_/ (_</_</_ (_/|_/ (_/_
+ /                         /  
+'                         '   
 
 The easiest way to turn your Raspberry Pi into a Tor middle relay.
 
