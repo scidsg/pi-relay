@@ -1,4 +1,4 @@
-# RelayPi
+# Pi Relay
  Quickly configure a Tor middle relay
  
  ```
