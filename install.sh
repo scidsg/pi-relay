@@ -121,7 +121,7 @@ fi
 wget https://raw.githubusercontent.com/scidsg/relay-pi/main/relay_status.py
 
 # Download the splash screen
-wget https://raw.githubusercontent.com/scidsg/brand-resources/main/logos/splash-sm.png
+wget https://raw.githubusercontent.com/scidsg/pi-relay/main/images/splash.png
 
 # Add a line to the .bashrc to run the relay_status.py script on boot
 if ! grep -q "sudo python3 /home/pi/relay_status.py" /home/pi/.bashrc; then
