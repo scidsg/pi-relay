@@ -12,12 +12,14 @@
 
 Pi Relay is designed to make setting up a Tor relay easy for everyone:
 
-* No manual editing files
+* No manually editing files
 * Smart defaults
+* Tor repositories automatically included
 * Censorship resistant settings
 * Set limits on your relay's your data usage
 * Settings that minimize risk - only middle relay config
 * Automatic relay naming
 * Nyx setup included
+* Automatic Update setup included
 
 ![IMG_5064 2](https://github.com/scidsg/relay-pi/assets/28545431/f2051475-0191-416b-9522-2f9e18cfba44)
