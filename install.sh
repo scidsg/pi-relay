@@ -22,7 +22,7 @@ echo "CPU architecture is $architecture"
 # Install apt-transport-https
 sudo apt-get install -y apt-transport-https whiptail unattended-upgrades
 
-whiptail --title "RelayPi Installation" --msgbox "RelayPi transforms your Raspberry Pi intro a Tor Network middle relay.\n\nBefore continuing, please modify your router's port forwarding settings to allow traffic over port 443 for this device.\n\nIf you don't know what port forwarding is, stop now and search for your router's specific instructions." 16 64
+whiptail --title "Pi Relay Installation" --msgbox "Pi Relay transforms your Raspberry Pi intro a Tor Network middle relay.\n\nBefore continuing, please modify your router's port forwarding settings to allow traffic over port 443 for this device.\n\nIf you don't know what port forwarding is, stop now and search for your router's specific instructions." 16 64
 
 # Determine the codename of the operating system
 codename=$(lsb_release -c | cut -f2)
@@ -118,7 +118,7 @@ else
 fi
 
 # Download the app
-wget https://raw.githubusercontent.com/scidsg/relay-pi/main/relay_status.py
+wget https://raw.githubusercontent.com/scidsg/pi-relay/main/relay_status.py
 
 # Download the splash screen
 wget https://raw.githubusercontent.com/scidsg/pi-relay/main/images/splash.png
@@ -136,5 +136,15 @@ configure_display
 
 # Configure automatic updates
 curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/auto-updates.sh | bash
+
+echo "
+✅ Installation complete!
+                                               
+Pi Relay is a product by Science & Design. 
+Learn more about us at https://scidsg.org.
+Have feedback? Send us an email at feedback@scidsg.org.
+
+To run Nyx, enter this command: sudo -u debian-tor nyx
+"
 
 sudo reboot
