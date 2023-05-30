@@ -2,7 +2,7 @@
 
  Quickly configure a Tor middle relay on a Raspberry Pi. Optionally add an e-ink display to see relevant information.
  
- ![cover](https://github.com/scidsg/pi-relay/assets/28545431/9a98e046-0d3d-4070-81de-14d754c4b4ed)
+![cover](https://github.com/scidsg/pi-relay/assets/28545431/4e216690-e2c1-402c-9198-9f1dd04d8ab5)
 
  ```
  curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/install.sh | bash
