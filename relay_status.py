@@ -84,10 +84,21 @@ def get_status_info():
             flags = get_flags()  # Add this line
 
             # Uptime in hours
-            uptime = controller.get_info("uptime") 
-            uptime_hours = int(uptime) // 3600
-            if uptime_hours == 0:
-                uptime_hours = "<1"
+            uptime = int(controller.get_info("uptime"))
+            uptime_hours = uptime // 3600
+            uptime_days = uptime_hours // 24
+
+            # If the uptime is less than 1 hour
+            if uptime_hours < 1:
+                uptime_str = "<1 hour"
+            # If the uptime is more than 24 hours, calculate in terms of days and hours
+            elif uptime_hours >= 24:
+                remaining_hours = uptime_hours % 24
+                # Display days and remaining hours
+                uptime_str = f"{uptime_days} day{'s' if uptime_days > 1 else ''} {remaining_hours} hour{'s' if remaining_hours > 1 else ''}"
+            else:
+                # If the uptime is between 1 and 23 hours, display as hours
+                uptime_str = f"{uptime_hours} hour{'s' if uptime_hours > 1 else ''}"
 
             # Accounting
             try:
@@ -104,7 +115,7 @@ def get_status_info():
                 "tor_version": tor_version,
                 "nickname": nickname,
                 "fingerprint": fingerprint,
-                "uptime_hours": uptime_hours,
+                "uptime_hours": uptime_str,
                 "flags": flags,  # Add this line
                 "read_bytes": bytes_to_human_readable(read_bytes),
                 "written_bytes": bytes_to_human_readable(written_bytes),
@@ -172,7 +183,7 @@ def display_status(epd, status_info):
         f"Tor: {status_info['tor_version']}",
         f"Nickname: {status_info['nickname']}",
         f"Fingerprint: {status_info['fingerprint']}",
-        f"Uptime: {status_info['uptime_hours']} hours",
+        f"Uptime: {status_info['uptime_hours']}",
         f"Flags: {status_info['flags']}",  # add this line
         f"Accounting: {bytes_to_human_readable(status_info['current_bytes'])} / {status_info['accounting_max']} ({percentage_str})",
     ]
@@ -211,7 +222,7 @@ def main():
 
     # Display splash screen
     script_path = os.path.dirname(os.path.realpath(__file__))
-    splash_screen_path = os.path.join(script_path, 'splash-sm.png')
+    splash_screen_path = os.path.join(script_path, 'splash.png')
     display_splash_screen(epd, splash_screen_path, 3)  # display splash screen for 3 seconds
 
     try:
