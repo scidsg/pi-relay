@@ -5,7 +5,7 @@
  ![cover](https://github.com/scidsg/pi-relay/assets/28545431/9a98e046-0d3d-4070-81de-14d754c4b4ed)
 
  ```
- curl -sSL https://raw.githubusercontent.com/scidsg/relay-pi/main/install.sh | bash
+ curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/install.sh | bash
  ```
 
 ## Why Pi Relay?
