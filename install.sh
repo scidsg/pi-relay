@@ -144,7 +144,7 @@ Pi Relay is a product by Science & Design.
 Learn more about us at https://scidsg.org.
 Have feedback? Send us an email at feedback@scidsg.org.
 
-To run Nyx, enter this command: sudo -u debian-tor nyx
+To run Nyx, enter: sudo -u debian-tor nyx
 "
 
-sudo reboot
+python3 relay_status.py &
