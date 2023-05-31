@@ -81,7 +81,7 @@ def get_status_info():
             tor_version = controller.get_version()
             fingerprint = controller.get_info("fingerprint")[-8:]
             nickname = get_tor_nickname()
-            flags = get_flags()  # Add this line
+            flags = get_flags()
 
             # Uptime in hours
             uptime = int(controller.get_info("uptime"))
@@ -116,7 +116,7 @@ def get_status_info():
                 "nickname": nickname,
                 "fingerprint": fingerprint,
                 "uptime_hours": uptime_str,
-                "flags": flags,  # Add this line
+                "flags": flags,
                 "read_bytes": bytes_to_human_readable(read_bytes),
                 "written_bytes": bytes_to_human_readable(written_bytes),
                 "accounting_max": bytes_to_human_readable(accounting_max),
