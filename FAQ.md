@@ -40,5 +40,4 @@ Self-testing indicates your ORPort xxx.xxx.xxx.xxx:443 is reachable from the out
  │   Publishing server descriptor.
 ```
 
-If you don't see the second message, **make sure your router's port forwarding settings are properly configured.
-**
+If you don't see the second message, **make sure your router's port forwarding settings are properly configured.**
