@@ -53,13 +53,13 @@ configure_tor() {
 RunAsDaemon 1
 ControlPort 9051
 CookieAuthentication 1
-ORPort 443
+ORPort $2
 Nickname $1
-RelayBandwidthRate $2
-RelayBandwidthBurst $3
+RelayBandwidthRate $3
+RelayBandwidthBurst $4
 # The script takes this input and configures Tor's AccountingMax to be half of the user-specified amount. It does this because the AccountingMax limit in Tor applies separately to sent (outbound) and received (inbound) bytes. In other words, if you set AccountingMax to 1 TB, your Tor node could potentially send and receive up to 1 TB each, totaling 2 TB of traffic.
 AccountingMax $new_max_value $max_unit
-ContactInfo $5 $6
+ContactInfo $6 $7
 ExitPolicy reject *:*
 DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
 
@@ -69,7 +69,9 @@ DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
 
 # Function to collect user information
 collect_info() {
-    nickname="pirelay$(date +"%y%m%d")"
+    # nickname="pirelay$(date +"%y%m%d")"
+    nickname=$(whiptail --inputbox "Name your relay" 8 78 "pirelay$(date +"%y%m%d")" --title "Relay Nickname" 3>&1 1>&2 2>&3)
+    port=$(whiptail --inputbox "What port do you want to use?" 8 78 "443" --title "Port Number" 3>&1 1>&2 2>&3)
     bandwidth=$(whiptail --inputbox "Enter your desired bandwidth per second" 8 78 "1 MB" --title "Bandwidth Rate" 3>&1 1>&2 2>&3)
     burst=$(whiptail --inputbox "Enter your burst rate per second" 8 78 "2 MB" --title "Bandwidth Burst" 3>&1 1>&2 2>&3)
     max=$(whiptail --inputbox "Set your maximum bandwidth each month" 8 78 "1.5 TB" --title "Accounting Max" 3>&1 1>&2 2>&3)
