@@ -78,7 +78,7 @@ RelayBandwidthBurst $3
 # The script takes this input and configures Tor's AccountingMax to be half of the user-specified amount. It does this because the AccountingMax limit in Tor applies separately to sent (outbound) and received (inbound) bytes. In other words, if you set AccountingMax to 1 TB, your Tor node could potentially send and receive up to 1 TB each, totaling 2 TB of traffic.
 AccountingMax $new_max_value $max_unit
 ContactInfo $5 $6
-ExitRelay 0
+ExitPolicy reject *:*
 DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
 
     sudo systemctl restart tor
@@ -151,6 +151,24 @@ fi
 }
 
 configure_display
+
+# Configure system service
+cat > /etc/systemd/system/relay_status.service << EOL
+[Unit]
+Description=Pi Relay Status Script
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/relay_status.py
+User=pi
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+sudo systemctl enable relay_status.service
+sudo systemctl start relay_status.service
 
 echo "
 ✅ Installation complete!
