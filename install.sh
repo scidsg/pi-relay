@@ -22,6 +22,15 @@ echo "CPU architecture is $architecture"
 # Install apt-transport-https
 sudo apt-get install -y apt-transport-https whiptail unattended-upgrades apt-listchanges
 
+# Function to display error message and exit
+error_exit() {
+    echo "An error occurred during installation. Please check the output above for more details."
+    exit 1
+}
+
+# Trap any errors and call the error_exit function
+trap error_exit ERR
+
 whiptail --title "Pi Relay Installation" --msgbox "Pi Relay transforms your Raspberry Pi intro a Tor Network middle relay.\n\nBefore continuing, please modify your router's port forwarding settings to allow traffic over port 443 for this device.\n\nIf you don't know what port forwarding is, stop now and search for your router's specific instructions." 16 64
 
 # Determine the codename of the operating system
@@ -119,13 +128,33 @@ sudo apt-get install -y python3-pip
 
 # Install Waveshare e-Paper library
 git clone https://github.com/waveshare/e-Paper.git
+python3 -m venv venv
+source venv/bin/activate
 pip3 install ./e-Paper/RaspberryPi_JetsonNano/python/
 pip3 install qrcode[pil]
-pip3 install requests python-gnupg
+pip3 install requests python-gnupg stem
 
 # Install other Python packages
 pip3 install RPi.GPIO spidev
 apt-get -y autoremove
+
+# Create a systemd service
+cat > /etc/systemd/system/relay_status.service << EOL
+[Unit]
+Description=Relay Status Script
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/relay_status.py
+User=pi
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+sudo systemctl enable relay_status.service
+sudo systemctl start relay_status.service
 
 # Enable SPI interface
 if ! grep -q "dtparam=spi=on" /boot/config.txt; then
@@ -162,4 +191,7 @@ Have feedback? Send us an email at feedback@scidsg.org.
 To run Nyx, enter: sudo -u debian-tor nyx
 "
 
-python3 relay_status.py &
+sudo systemctl restart relay_status
+
+# Disable the trap before exiting
+trap - ERR
