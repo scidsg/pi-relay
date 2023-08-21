@@ -45,7 +45,7 @@ else
     echo "SPI interface is already enabled."
 fi
 
-cat > /home/pi/hush-line/display_status.py << EOL
+cat > /home/pi/relay_status.py << EOL
 import os
 import sys
 import time
