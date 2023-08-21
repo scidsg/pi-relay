@@ -48,7 +48,6 @@ Unattended-Upgrade::Origins-Pattern {
 };
 Unattended-Upgrade::Package-Blacklist {
 };
-Unattended-Upgrade::Automatic-Reboot "true";
 EOL
 
 cat > /etc/apt/apt.conf.d/20auto-upgrades << EOL
