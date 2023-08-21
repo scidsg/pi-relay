@@ -40,7 +40,7 @@ sudo apt-get update
 # Install tor and tor debian keyring
 sudo apt-get install -y tor deb.torproject.org-keyring nyx
 
-# Configure Updates
+# Configure Tor Auto Updates
 cat > /etc/apt/apt.conf.d/50unattended-upgrades << EOL
 Unattended-Upgrade::Origins-Pattern {
     "origin=Debian,codename=${distro_codename},label=Debian-Security";
@@ -51,14 +51,12 @@ Unattended-Upgrade::Package-Blacklist {
 Unattended-Upgrade::Automatic-Reboot "true";
 EOL
 
-# Configure Updates
 cat > /etc/apt/apt.conf.d/20auto-upgrades << EOL
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::AutocleanInterval "5";
 APT::Periodic::Unattended-Upgrade "1";
 APT::Periodic::Verbose "1";
 EOL
-
 
 # Function to configure Tor as a middle relay
 configure_tor() {
