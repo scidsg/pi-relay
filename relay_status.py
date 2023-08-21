@@ -5,8 +5,6 @@ import socket
 import textwrap
 from waveshare_epd import epd2in13_V3
 from PIL import Image, ImageDraw, ImageFont
-from stem import Signal
-from stem.control import Controller
 
 def bytes_to_human_readable(bytes, units=[' bytes',' KB',' MB',' GB',' TB', ' PB', ' EB']):
     """ Returns a human readable string reprentation of bytes"""
