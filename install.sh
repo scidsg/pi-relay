@@ -20,7 +20,7 @@ architecture=$(dpkg --print-architecture)
 echo "CPU architecture is $architecture"
 
 # Install apt-transport-https
-sudo apt-get install -y apt-transport-https whiptail unattended-upgrades
+sudo apt-get install -y apt-transport-https whiptail unattended-upgrades apt-listchanges
 
 whiptail --title "Pi Relay Installation" --msgbox "Pi Relay transforms your Raspberry Pi intro a Tor Network middle relay.\n\nBefore continuing, please modify your router's port forwarding settings to allow traffic over port 443 for this device.\n\nIf you don't know what port forwarding is, stop now and search for your router's specific instructions." 16 64
 
@@ -40,6 +40,26 @@ sudo apt-get update
 # Install tor and tor debian keyring
 sudo apt-get install -y tor deb.torproject.org-keyring nyx
 
+# Configure Updates
+cat > /etc/apt/apt.conf.d/50unattended-upgrades << EOL
+Unattended-Upgrade::Origins-Pattern {
+    "origin=Debian,codename=${distro_codename},label=Debian-Security";
+    "origin=TorProject";
+};
+Unattended-Upgrade::Package-Blacklist {
+};
+Unattended-Upgrade::Automatic-Reboot "true";
+EOL
+
+# Configure Updates
+cat > /etc/apt/apt.conf.d/20auto-upgrades << EOL
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::AutocleanInterval "5";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::Verbose "1";
+EOL
+
+
 # Function to configure Tor as a middle relay
 configure_tor() {
     # Parse the value and the unit from the provided accounting max
@@ -53,14 +73,14 @@ configure_tor() {
 RunAsDaemon 1
 ControlPort 9051
 CookieAuthentication 1
-ORPort $2
+ORPort 443
 Nickname $1
-RelayBandwidthRate $3
-RelayBandwidthBurst $4
+RelayBandwidthRate $2
+RelayBandwidthBurst $3
 # The script takes this input and configures Tor's AccountingMax to be half of the user-specified amount. It does this because the AccountingMax limit in Tor applies separately to sent (outbound) and received (inbound) bytes. In other words, if you set AccountingMax to 1 TB, your Tor node could potentially send and receive up to 1 TB each, totaling 2 TB of traffic.
 AccountingMax $new_max_value $max_unit
-ContactInfo $6 $7
-ExitPolicy reject *:*
+ContactInfo $5 $6
+ExitRelay 0
 DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
 
     sudo systemctl restart tor
@@ -69,9 +89,7 @@ DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
 
 # Function to collect user information
 collect_info() {
-    # nickname="pirelay$(date +"%y%m%d")"
-    nickname=$(whiptail --inputbox "Name your relay" 8 78 "pirelay$(date +"%y%m%d")" --title "Relay Nickname" 3>&1 1>&2 2>&3)
-    port=$(whiptail --inputbox "What port do you want to use?" 8 78 "443" --title "Port Number" 3>&1 1>&2 2>&3)
+    nickname="pirelay$(date +"%y%m%d")"
     bandwidth=$(whiptail --inputbox "Enter your desired bandwidth per second" 8 78 "1 MB" --title "Bandwidth Rate" 3>&1 1>&2 2>&3)
     burst=$(whiptail --inputbox "Enter your burst rate per second" 8 78 "2 MB" --title "Bandwidth Burst" 3>&1 1>&2 2>&3)
     max=$(whiptail --inputbox "Set your maximum bandwidth each month" 8 78 "1.5 TB" --title "Accounting Max" 3>&1 1>&2 2>&3)
@@ -135,9 +153,6 @@ fi
 }
 
 configure_display
-
-# Configure automatic updates
-curl -sSL https://raw.githubusercontent.com/scidsg/tools/main/auto-updates.sh | bash
 
 echo "
 ✅ Installation complete!
