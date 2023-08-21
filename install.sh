@@ -35,7 +35,7 @@ echo "deb-src [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyr
 wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | sudo tee /usr/share/keyrings/tor-archive-keyring.gpg >/dev/null
 
 # Update system packages
-sudo apt-get update
+sudo apt-get update && sudo apt-get -y dist-upgrade && sudo apt-get -y autoremove
 
 # Install tor and tor debian keyring
 sudo apt-get install -y tor deb.torproject.org-keyring nyx
@@ -48,6 +48,7 @@ Unattended-Upgrade::Origins-Pattern {
 };
 Unattended-Upgrade::Package-Blacklist {
 };
+Unattended-Upgrade::Automatic-Reboot "true";
 EOL
 
 cat > /etc/apt/apt.conf.d/20auto-upgrades << EOL
@@ -116,5 +117,3 @@ Have feedback? Send us an email at feedback@scidsg.org.
 
 To run Nyx, enter: sudo -u debian-tor nyx
 "
-
-python3 relay_status.py &
