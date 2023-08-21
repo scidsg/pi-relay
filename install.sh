@@ -121,7 +121,7 @@ sudo apt-get install -y python3-pip
 git clone https://github.com/waveshare/e-Paper.git
 pip3 install ./e-Paper/RaspberryPi_JetsonNano/python/
 pip3 install qrcode[pil]
-pip3 install requests python-gnupg stem
+pip3 install requests python-gnupg
 
 # Install other Python packages
 pip3 install RPi.GPIO spidev
@@ -151,24 +151,6 @@ fi
 }
 
 configure_display
-
-# Configure system service
-cat > /etc/systemd/system/relay_status.service << EOL
-[Unit]
-Description=Pi Relay Status Script
-After=network.target
-
-[Service]
-ExecStart=/usr/bin/python3 /home/pi/relay_status.py
-User=pi
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOL
-
-sudo systemctl enable relay_status.service
-sudo systemctl start relay_status.service
 
 echo "
 ✅ Installation complete!
