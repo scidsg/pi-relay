@@ -307,9 +307,8 @@ wget https://raw.githubusercontent.com/scidsg/pi-relay/main/images/splash.png
 if ! grep -q "sudo python3 /home/pi/relay_status.py" /home/pi/.bashrc; then
     echo "sudo python3 /home/pi/relay_status.py &" >> /home/pi/.bashrc
 fi
-    else
-        echo "Your relay is running!"
-    fi
-}
 
-configure_display
+echo "✅ E-ink display configuration complete. Rebooting your Raspberry Pi..."
+sleep 3
+
+sudo reboot
