@@ -6,6 +6,11 @@ Pi Relay is a free and open-source tool that transforms a Raspberry Pi into a re
  curl -sSL https://install.pirelay.computer | bash
  ```
 
+To install a 2.13" Waveshare e-Paper display:
+```
+curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/setup_display.sh | bash
+```
+
  ![cover](https://github.com/scidsg/pi-relay/assets/28545431/0c16b5a6-f2ca-482a-b728-759c0df2e233)
 
 ## Why Pi Relay?
@@ -15,12 +20,11 @@ Pi Relay is designed to make setting up a Tor relay easy for everyone:
 * No manually editing files
 * Smart defaults
 * Tor repositories automatically included
-* Censorship resistant settings
 * Set limits on your relay's data usage
 * Settings that minimize risk - only middle relay config
 * Automatic relay naming
 * Nyx setup included
-* Automatic Update setup included
+* Automatic updates
 * Add an e-ink display to see up-to-date information about your relay's usage
 
 ![IMG_6557](https://github.com/scidsg/pi-relay/assets/28545431/039f8549-1c3f-4913-9d9d-9b5ef4075b64)
