@@ -11,6 +11,16 @@ To install a 2.13" Waveshare e-Paper display:
 curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/setup_display.sh | bash
 ```
 
+## System Requirements
+
+### VPS
+- **OS:** Debian 11/12 x64
+
+### Raspberry Pi
+- **Hardware:** Raspberry Pi 4/3B+
+- **OS:** Raspberry Pi OS (64-bit)
+- **Display** (optional): [Waveshare E-Ink 2.13" HAT](https://www.waveshare.com/product/raspberry-pi/displays/e-paper/2.13inch-e-paper-hat.htm) ([Amazon Affiliate Link](https://www.amazon.com/gp/product/B07Z1WYRQH/?&_encoding=UTF8&tag=scidsg-20&linkCode=ur2&linkId=edc2337499023ba20f7ac43e49dd041d&camp=1789&creative=9325))
+
  ![cover](https://github.com/scidsg/pi-relay/assets/28545431/0c16b5a6-f2ca-482a-b728-759c0df2e233)
 
 ## Why Pi Relay?
