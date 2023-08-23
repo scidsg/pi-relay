@@ -13,9 +13,6 @@ curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/setup_d
 
 ## System Requirements
 
-### VPS
-- **OS:** Debian 11/12 x64
-
 ### Raspberry Pi
 - **Hardware:** Raspberry Pi 4/3B+
 - **OS:** Raspberry Pi OS (64-bit)
