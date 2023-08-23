@@ -12,7 +12,7 @@ cat << "EOF"
                      \/_/               \/_/                
 A free tool by Science & Design - https://scidsg.org
 
-Visualize your relay's activity.
+Use a Waveshare 2.13" e-Paper display to visualize information about your Tor relay.
 
 EOF
 sleep 3
