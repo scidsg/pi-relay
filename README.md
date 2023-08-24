@@ -9,7 +9,6 @@ Pi Relay is a free and open-source tool that transforms a Raspberry Pi into a re
 
 ### Install an e-Paper Display:
 
-To install a 2.13" Waveshare e-Paper display:
 ```
 curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/waveshare-2_13in-eink-display.sh | bash
 ```
