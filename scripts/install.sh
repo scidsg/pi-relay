@@ -82,9 +82,35 @@ DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
     sudo systemctl enable tor
 }
 
+
+# Function to validate Tor relay nickname
+validate_nickname() {
+    local nn="$1"
+    
+    # Check for length
+    if [ "${#nn}" -lt 1 ] || [ "${#nn}" -gt 19 ]; then
+        return 1
+    fi
+
+    # Check for valid characters: only alphanumeric characters
+    if [[ ! "$nn" =~ ^[a-zA-Z0-9]+$ ]]; then
+        return 1
+    fi
+
+    return 0
+}
+
 # Function to collect user information
 collect_info() {
-    nickname=$(whiptail --inputbox "Give your relay a nickname. Avoid special characters and spaces." 8 78 "pirelay$(date +"%y%m%d")" --title "Nickname" 3>&1 1>&2 2>&3)
+    while true; do
+        nickname=$(whiptail --inputbox "Give your relay a nickname. Avoid special characters and spaces." 8 78 "pirelay$(date +"%y%m%d")" --title "Nickname" 3>&1 1>&2 2>&3)
+        if validate_nickname "$nickname"; then
+            break
+        else
+            whiptail --title "Invalid Nickname" --msgbox "Please enter a valid nickname. It must be between 1 and 19 characters and can only include alphanumeric characters." 10 78
+        fi
+    done
+
     bandwidth=$(whiptail --inputbox "Enter your desired bandwidth per second" 8 78 "1 MB" --title "Bandwidth Rate" 3>&1 1>&2 2>&3)
     burst=$(whiptail --inputbox "Enter your burst rate per second" 8 78 "2 MB" --title "Bandwidth Burst" 3>&1 1>&2 2>&3)
     max=$(whiptail --inputbox "Set your maximum bandwidth each month" 8 78 "1.5 TB" --title "Accounting Max" 3>&1 1>&2 2>&3)
