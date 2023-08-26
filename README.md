@@ -2,7 +2,7 @@
 
 Pi Relay is a free and open-source tool that transforms a Raspberry Pi into a relay for the Tor Network, aiming to enhance internet safety and access. It is especially beneficial in regions where internet censorship is present. Users such as journalists, librarians, and businesses can utilize Pi Relay to contribute the resiliency and performance of the Tor Network. Pi Relay facilitates the navigation through internet restrictions, upholds privacy, and assists in secure access. By supporting a network that counters digital security threats, it contributes to the broader goals of human rights, open societies, and internet freedom. Add an e-paper display to visualize your relay's activity.
 
-## East Install:
+## Easy Install:
  ```
  curl -sSL https://install.pirelay.computer | bash
  ```
