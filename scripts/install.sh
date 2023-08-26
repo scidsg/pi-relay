@@ -22,8 +22,6 @@ echo "CPU architecture is $architecture"
 # Install apt-transport-https
 sudo apt-get install -y apt-transport-https whiptail unattended-upgrades apt-listchanges
 
-whiptail --title "Pi Relay Installation" --msgbox "Pi Relay transforms your Raspberry Pi intro a Tor Network middle relay.\n\nBefore continuing, please modify your router's port forwarding settings to allow traffic over port 443 for this device.\n\nIf you don't know what port forwarding is, stop now and search for your router's specific instructions." 16 64
-
 # Determine the codename of the operating system
 codename=$(lsb_release -c | cut -f2)
 
@@ -71,11 +69,10 @@ configure_tor() {
 RunAsDaemon 1
 ControlPort 9051
 CookieAuthentication 1
-ORPort 443
+ORPort $7
 Nickname $1
 RelayBandwidthRate $2
 RelayBandwidthBurst $3
-# The script takes this input and configures Tor's AccountingMax to be half of the user-specified amount. It does this because the AccountingMax limit in Tor applies separately to sent (outbound) and received (inbound) bytes. In other words, if you set AccountingMax to 1 TB, your Tor node could potentially send and receive up to 1 TB each, totaling 2 TB of traffic.
 AccountingMax $new_max_value $max_unit
 ContactInfo $5 $6
 ExitPolicy reject *:*
@@ -87,18 +84,19 @@ DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
 
 # Function to collect user information
 collect_info() {
-    nickname="pirelay$(date +"%y%m%d")"
+    nickname=$(whiptail --inputbox "Give your relay a nickname. Avoid special characters and spaces." 8 78 "pirelay$(date +"%y%m%d")" --title "Nickname" 3>&1 1>&2 2>&3)
     bandwidth=$(whiptail --inputbox "Enter your desired bandwidth per second" 8 78 "1 MB" --title "Bandwidth Rate" 3>&1 1>&2 2>&3)
     burst=$(whiptail --inputbox "Enter your burst rate per second" 8 78 "2 MB" --title "Bandwidth Burst" 3>&1 1>&2 2>&3)
     max=$(whiptail --inputbox "Set your maximum bandwidth each month" 8 78 "1.5 TB" --title "Accounting Max" 3>&1 1>&2 2>&3)
     contactname=$(whiptail --inputbox "Please enter your name" 8 78 "Random Person" --title "Contact Name" 3>&1 1>&2 2>&3)        
     email=$(whiptail --inputbox "Please enter your contact email. Use the provided format to help avoid spam." 8 78 "<nobody AT example dot com>" --title "Contact Email" 3>&1 1>&2 2>&3)        
+    port=$(whiptail --inputbox "Which port do you want to use?" 8 78 "443" --title "Relay Port" 3>&1 1>&2 2>&3)
 }
 
 # Main function to orchestrate the setup
 setup_tor_relay() {
     collect_info
-    configure_tor "$nickname" "$bandwidth" "$burst" "$max" "$contactname" "$email"
+    configure_tor "$nickname" "$bandwidth" "$burst" "$max" "$contactname" "$email" "$port"
 }
 
 sudo mkdir -p /var/log/tor
@@ -108,6 +106,9 @@ sudo systemctl restart tor
 
 setup_tor_relay
 
+SERVER_IP=$(hostname -I | tr -d ' ')
+whiptail --title "Router Configuration" --msgbox "For your Tor relay to work you'll need to modify some of your router's settings:\n\n1. Assign this device a static IP address. Your current IP is $SERVER_IP.\n2. Enable port forwarding for $SERVER_IP on port $port.\n\nPlease refer to your router's instructions manual if you're unfamiliar with any of these steps." 16 64
+
 echo "
 ✅ Installation complete!
                                                
@@ -116,4 +117,6 @@ Learn more about us at https://scidsg.org.
 Have feedback? Send us an email at feedback@scidsg.org.
 
 To run Nyx, enter: sudo -u debian-tor nyx
+
+To configure a Waveshare 2.13 inch e-paper display, enter: curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/waveshare-2_13in-eink-display.sh | sudo bash
 "

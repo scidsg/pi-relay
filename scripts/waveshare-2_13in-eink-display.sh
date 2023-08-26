@@ -18,9 +18,9 @@ EOF
 sleep 3
 
 # Install required packages for e-ink display
-apt update
-apt-get -y dist-upgrade
-apt-get install -y python3-pip whiptail
+sudo apt update
+sudo apt-get -y dist-upgrade
+sudo apt-get install -y python3-pip whiptail
 
 whiptail --title "E-Ink Display Setup" --msgbox "The e-paper hat communicates with the Raspberry Pi using the SPI interface, so you need to enable it.\n\nNavigate to \"Interface Options\" > \"SPI\" and select \"Yes\" to enable the SPI interface." 12 64
 sudo raspi-config
@@ -35,7 +35,7 @@ pip3 install requests python-gnupg stem
 
 # Install other Python packages
 pip3 install RPi.GPIO spidev
-apt-get -y autoremove
+sudo apt-get -y autoremove
 
 # Enable SPI interface
 if ! grep -q "dtparam=spi=on" /boot/config.txt; then
