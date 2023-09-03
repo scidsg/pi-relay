@@ -2,16 +2,17 @@
 
 # Welcome message and ASCII art
 cat << "EOF"
-                  _           
-                 //           
-   _   o __  _  //  __.  __  ,
-  /_)_<_/ (_</_</_ (_/|_/ (_/_
- /                         /  
-'                         '   
+                  _                               
+                 //               /               
+   _   o __  _  //  __.  __  ,   /_  __ ______  _ 
+  /_)_<_/ (_</_</_ (_/|_/ (_/_  / /_(_)/ / / <_</_
+ /                         /                      
+'                         '                       
 
-The easiest way to turn your Raspberry Pi into a Tor middle relay.
+The easiest way to support the Tor network from home.
 
 A free tool by Science & Design - https://scidsg.org
+
 EOF
 sleep 3
 
