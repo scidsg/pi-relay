@@ -132,8 +132,8 @@ sudo systemctl restart tor
 
 setup_tor_relay
 
-SERVER_IP=$(hostname -I | tr -d ' ')
-whiptail --title "Router Configuration" --msgbox "For your Tor relay to work you'll need to modify some of your router's settings:\n\n1. Assign this device a static IP address. Your current IP is $SERVER_IP.\n2. Enable port forwarding for $SERVER_IP on port $port.\n\nPlease refer to your router's instructions manual if you're unfamiliar with any of these steps." 16 64
+SERVER_IP=$(hostname -I | awk '{print $1}')
+whiptail --title "Router Configuration" --msgbox "If you're operating this relay from a local server, you may need to modify some of your router's settings for the Tor network to find it:\n\n1. First, assign this device a static IP address. Your current IP is $SERVER_IP.\n\n2. Enable port forwarding for $SERVER_IP on port $port.\n\nPlease refer to your router's instructions manual if you're unfamiliar with any of these steps." 20 64
 
 echo "
 ✅ Installation complete!
