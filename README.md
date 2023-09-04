@@ -20,7 +20,6 @@ curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/wavesha
 - **Memory:**
    - Non-exit relay @ <5 MB/s: >= 512 MB RAM (Default settings)
    - Non-exit relay @ >5 MB/s: >=1 GB RAM
-   - Exit relay: 1.5 GB RAM/instance
 - **Default Settings:**
    - Relay Type: Middle
    - Monthly data: 1.5 TB
@@ -49,5 +48,3 @@ Pi Relay is designed to make setting up a Tor relay easy for everyone:
 * Nyx setup included
 * Automatic updates
 * Add an e-ink display to see up-to-date information about your relay's usage
-
-![IMG_6557](https://github.com/scidsg/pi-relay/assets/28545431/039f8549-1c3f-4913-9d9d-9b5ef4075b64)
