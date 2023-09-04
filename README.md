@@ -26,7 +26,8 @@ curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/wavesha
    - Monthly data: 200 GB
    - Bandwidth rate: 2 MB/s
    - Bandwidth burst: 4 MB/s
-   - ORPort: 443 
+   - ORPort: 443
+- **Storage:** >=8 GB
 - **OS:** Raspberry Pi OS (64-bit)
 - **Display** (optional): [Waveshare 2.13" e-Paper display](https://www.amazon.com/gp/product/B07Z1WYRQH/?&_encoding=UTF8&tag=scidsg-20&linkCode=ur2&linkId=edc2337499023ba20f7ac43e49dd041d&camp=1789&creative=9325)
 - (👆 Affiliate links)
