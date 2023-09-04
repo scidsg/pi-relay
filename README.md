@@ -23,7 +23,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/wavesha
    - Exit relay: 1.5 GB RAM/instance
 - **Default Settings:**
    - Relay Type: Middle
-   - Monthly data: 200 GB
+   - Monthly data: 1.5 TB
    - Bandwidth rate: 2 MB/s
    - Bandwidth burst: 4 MB/s
    - ORPort: 443
