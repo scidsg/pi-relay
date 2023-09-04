@@ -30,6 +30,8 @@ curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/wavesha
 - **OS:** Raspberry Pi OS (64-bit)
 - **Display** (optional): [Waveshare 2.13" e-Paper display](https://www.amazon.com/gp/product/B07Z1WYRQH/?&_encoding=UTF8&tag=scidsg-20&linkCode=ur2&linkId=edc2337499023ba20f7ac43e49dd041d&camp=1789&creative=9325)
 - (👆 Affiliate links)
+
+Learn more: https://community.torproject.org/relay/relays-requirements/
   
  ![cover](https://github.com/scidsg/pi-relay/assets/28545431/0c16b5a6-f2ca-482a-b728-759c0df2e233)
 
