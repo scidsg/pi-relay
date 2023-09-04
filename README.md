@@ -20,7 +20,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/wavesha
 - **Memory:**
    - Non-exit relay @ <5 MB/s: >= 512 MB RAM (Default settings)
    - Non-exit relay @ >5 MB/s: >=1 GB RAM
-   - Exit relay: 1.5 GB/instance
+   - Exit relay: 1.5 GB RAM/instance
 - **Default Settings:**
    - Relay Type: Middle
    - Monthly data: 200 GB
