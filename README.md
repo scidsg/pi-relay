@@ -26,7 +26,7 @@ curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/wavesha
    - Bandwidth rate: 2 MB/s
    - Bandwidth burst: 4 MB/s
    - ORPort: 443
-- **Storage:** >=8 GB
+- **Storage:** >=[8 GB Micro SD](https://www.amazon.com/SanDisk-Extreme-microSDXC-Memory-Adapter/dp/B09X7BK27V?crid=2EGJVK0HAQM9Q&keywords=micro%2Bsd%2Bcard&qid=1693975195&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D&sprefix=micro%2Bsd%2Bcard%2Caps%2C154&sr=8-5&th=1&linkCode=ll1&tag=scidsg-20&linkId=03e76df85abcf0b17acd93c4e09a9149&language=en_US&ref_=as_li_ss_tl)
 - **OS:** Raspberry Pi OS (64-bit)
 - **Display** (optional): [Waveshare 2.13" e-Paper display](https://www.amazon.com/gp/product/B07Z1WYRQH/?&_encoding=UTF8&tag=scidsg-20&linkCode=ur2&linkId=edc2337499023ba20f7ac43e49dd041d&camp=1789&creative=9325)
 - (👆 Affiliate links)
