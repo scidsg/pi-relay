@@ -2,12 +2,12 @@
 
 # Welcome message and ASCII art
 cat << "EOF"
-                  _                               
-                 //               /               
-   _   o __  _  //  __.  __  ,   /_  __ ______  _ 
-  /_)_<_/ (_</_</_ (_/|_/ (_/_  / /_(_)/ / / <_</_
- /                         /                      
-'                         '                       
+                  _
+                 //            
+   _   o __  _  //  __.  __  ,
+  /_)_<_/ (_</_</_ (_/|_/ (_/_
+ /                         /
+'                         '
 
 The easiest way to support the Tor network from home.
 
@@ -21,7 +21,7 @@ architecture=$(dpkg --print-architecture)
 echo "CPU architecture is $architecture"
 
 # Install apt-transport-https
-sudo apt-get install -y apt-transport-https whiptail unattended-upgrades apt-listchanges
+sudo apt-get install -y apt-transport-https whiptail unattended-upgrades apt-listchanges bc
 
 # Determine the codename of the operating system
 codename=$(lsb_release -c | cut -f2)
@@ -59,14 +59,28 @@ EOL
 
 # Function to configure Tor as a middle relay
 configure_tor() {
-    # Parse the value and the unit from the provided accounting max
-    max_value=$(echo "$4" | cut -d ' ' -f1)
-    max_unit=$(echo "$4" | cut -d ' ' -f2)
+    if [ "$4" == "Unmetered" ]; then
+        echo "Log notice file /var/log/tor/notices.log
+RunAsDaemon 1
+ControlPort 9051
+CookieAuthentication 1
+ORPort $7
+Nickname $1
+RelayBandwidthRate $2
+RelayBandwidthBurst $3
+AccountingMax 320 TB # Assuming full gigabit @ 125 MB/s 
+ContactInfo $5 $6
+ExitPolicy reject *:*
+DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
+    else
+        # Parse the value and the unit from the provided accounting max
+        max_value=$(echo "$4" | cut -d ' ' -f1)
+        max_unit=$(echo "$4" | cut -d ' ' -f2)
 
-    # Calculate the new max value (half of the provided value)
-    new_max_value=$(echo "scale=2; $max_value / 2" | bc -l)
+        # Calculate the new max value (half of the provided value)
+        new_max_value=$(echo "scale=2; $max_value / 2" | bc -l)
 
-    echo "Log notice file /var/log/tor/notices.log
+        echo "Log notice file /var/log/tor/notices.log
 RunAsDaemon 1
 ControlPort 9051
 CookieAuthentication 1
@@ -78,11 +92,11 @@ AccountingMax $new_max_value $max_unit
 ContactInfo $5 $6
 ExitPolicy reject *:*
 DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
+    fi
 
     sudo systemctl restart tor
     sudo systemctl enable tor
 }
-
 
 # Function to validate Tor relay nickname
 validate_nickname() {
@@ -111,12 +125,18 @@ collect_info() {
             whiptail --title "Invalid Nickname" --msgbox "Please enter a valid nickname. It must be between 1 and 19 characters and can only include alphanumeric characters." 10 78
         fi
     done
-
-    bandwidth=$(whiptail --inputbox "Enter your desired bandwidth per second" 8 78 "1 MB" --title "Bandwidth Rate" 3>&1 1>&2 2>&3)
-    burst=$(whiptail --inputbox "Enter your burst rate per second" 8 78 "2 MB" --title "Bandwidth Burst" 3>&1 1>&2 2>&3)
-    max=$(whiptail --inputbox "Set your maximum bandwidth each month" 8 78 "1.5 TB" --title "Accounting Max" 3>&1 1>&2 2>&3)
-    contactname=$(whiptail --inputbox "Please enter your name" 8 78 "Random Person" --title "Contact Name" 3>&1 1>&2 2>&3)        
-    email=$(whiptail --inputbox "Please enter your contact email. Use the provided format to help avoid spam." 8 78 "<nobody AT example dot com>" --title "Contact Email" 3>&1 1>&2 2>&3)        
+    
+    if (whiptail --title "Bandwidth Limits" --yesno "Should we limit relay's bandwidth usage?" 8 78); then
+        max=$(whiptail --inputbox "Set your maximum bandwidth each month" 8 78 "1.5 TB" --title "Accounting Max" 3>&1 1>&2 2>&3)
+        bandwidth=$(whiptail --inputbox "Set your bandwidth rate" 8 78 "2 MB" --title "Bandwidth Rate" 3>&1 1>&2 2>&3)
+        burst=$(whiptail --inputbox "Set your bandwidth burst" 8 78 "4 MB" --title "Bandwidth Burst" 3>&1 1>&2 2>&3)
+    else
+        max="Unmetered"
+        bandwidth="1 GB"
+        burst="1 GB"
+    fi
+    contactname=$(whiptail --inputbox "Please enter your name" 8 78 "Random Person" --title "Contact Name" 3>&1 1>&2 2>&3)
+    email=$(whiptail --inputbox "Please enter your contact email. Use the provided format to help avoid spam." 8 78 "<nobody AT example dot com>" --title "Contact Email" 3>&1 1>&2 2>&3)
     port=$(whiptail --inputbox "Which port do you want to use?" 8 78 "443" --title "Relay Port" 3>&1 1>&2 2>&3)
 }
 
