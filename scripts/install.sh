@@ -68,7 +68,7 @@ ORPort $7
 Nickname $1
 RelayBandwidthRate $2
 RelayBandwidthBurst $3
-AccountingMax 320 TB # Assuming full gigabit @ 125 MB/s 
+AccountingMax 160 TB
 ContactInfo $5 $6
 ExitPolicy reject *:*
 DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
