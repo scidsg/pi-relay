@@ -297,9 +297,6 @@ if __name__ == '__main__':
         sys.exit(0)
 EOL
 
-# Download the app
-wget https://raw.githubusercontent.com/scidsg/pi-relay/main/relay_status.py
-
 # Download the splash screen
 wget https://raw.githubusercontent.com/scidsg/pi-relay/main/images/splash.png
 
