@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#Run as root
+if [[ $EUID -ne 0 ]]; then
+  echo "Script needs to run as root. Elevating permissions now."
+  exec sudo /bin/bash "$0" "$@"
+fi
+
 # Welcome message and ASCII art
 cat << "EOF"
                   _                          
@@ -17,10 +23,11 @@ EOF
 sleep 3
 
 # Install whiptail if not present
-sudo apt update && sudo apt -y dist-upgrade && sudo apt -y autoremove
-sudo apt install -y whiptail git wget curl gpg
+apt update && apt -y dist-upgrade && apt -y autoremove
+apt install -y whiptail git wget curl gpg
 
-git clone https://github.com/glenn-sorrentino/Pi-Relay-Test.git
+cd $HOME
+git clone https://github.com/scidsg/pi-relay.git
 if [ $? -ne 0 ]; then
     echo "Failed to clone the repository. Exiting."
     exit 1
@@ -28,8 +35,8 @@ fi
 
 sleep 6
 
-if [ -d ~/Pi-Relay/scripts/ ]; then
-    cd ~/Pi-Relay/scripts/
+if [ -d $HOME/pi-relay/scripts/ ]; then
+    cd $HOME/pi-relay/scripts/
 else
     echo "Directory not found. Exiting."
     exit 1
