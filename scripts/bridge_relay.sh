@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#Run as root
+if [[ $EUID -ne 0 ]]; then
+  echo "Script needs to run as root. Elevating permissions now."
+  exec sudo /bin/bash "$0" "$@"
+fi
+
 # Learn more about relay requirements:
 # https://community.torproject.org/relay/relays-requirements/
 
@@ -8,23 +14,23 @@ architecture=$(dpkg --print-architecture)
 echo "CPU architecture is $architecture"
 
 # Install Packages
-sudo apt-get install -y apt-transport-https whiptail unattended-upgrades apt-listchanges bc
+apt-get install -y apt-transport-https whiptail unattended-upgrades apt-listchanges bc
 
 # Determine the codename of the operating system
 codename=$(lsb_release -c | cut -f2)
 
 # Add the tor repository to the sources.list.d
-echo "deb [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | sudo tee /etc/apt/sources.list.d/tor.list
-echo "deb-src [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | sudo tee -a /etc/apt/sources.list.d/tor.list
+echo "deb [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | tee /etc/apt/sources.list.d/tor.list
+echo "deb-src [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | tee -a /etc/apt/sources.list.d/tor.list
 
 # Download and add the gpg key used to sign the packages
-wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | sudo tee /usr/share/keyrings/tor-archive-keyring.gpg >/dev/null
+wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | tee /usr/share/keyrings/tor-archive-keyring.gpg >/dev/null
 
 # Update system packages
-sudo apt-get update && sudo apt-get -y dist-upgrade && sudo apt-get -y autoremove
+apt-get update && apt-get -y dist-upgrade && apt-get -y autoremove
 
 # Install tor and tor debian keyring
-sudo apt-get install -y tor deb.torproject.org-keyring nyx
+apt-get install -y tor deb.torproject.org-keyring nyx
 
 # Configure Tor Auto Updates
 cat > /etc/apt/apt.conf.d/50unattended-upgrades << EOL
@@ -66,10 +72,10 @@ ContactInfo $5 $6
 BridgeRelay 1
 ExitPolicy reject *:*
 DataDirectory /var/lib/tor
-DisableDebuggerAttachment 0" | sudo tee /etc/tor/torrc
+DisableDebuggerAttachment 0" | tee /etc/tor/torrc
 
-    sudo systemctl restart tor
-    sudo systemctl enable tor
+    systemctl restart tor
+    systemctl enable tor
 }
 
 
@@ -115,15 +121,36 @@ setup_tor_relay() {
     configure_tor "$nickname" "$bandwidth" "$burst" "$max" "$contactname" "$email" "$port"
 }
 
-sudo mkdir -p /var/log/tor
-sudo chown debian-tor:debian-tor /var/log/tor
-sudo chmod 700 /var/log/tor
-sudo systemctl restart tor
+mkdir -p /var/log/tor
+chown debian-tor:debian-tor /var/log/tor
+chmod 700 /var/log/tor
+systemctl restart tor
 
 setup_tor_relay
 
 SERVER_IP=$(hostname -I | awk '{print $1}')
 whiptail --title "Router Configuration" --msgbox "If you're operating this relay from a local server, you may need to modify some of your router's settings for the Tor network to find it:\n\n1. First, assign this device a static IP address. Your current IP is $SERVER_IP.\n\n2. Enable port forwarding for $SERVER_IP on port $port.\n\nPlease refer to your router's instructions manual if you're unfamiliar with any of these steps." 20 64
+
+# Configure UFW (Uncomplicated Firewall)
+
+echo "Configuring UFW..."
+
+# Default rules
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow 80/tcp
+ufw allow $port/tcp
+
+# Allow SSH (modify as per your requirements)
+ufw allow ssh
+ufw limit ssh/tcp
+# Logging
+ufw logging on
+
+# Enable UFW non-interactively
+echo "y" | ufw enable
+
+echo "UFW configuration complete."
 
 echo "
 ✅ Installation complete!
@@ -132,7 +159,7 @@ Pi Relay is a product by Science & Design.
 Learn more about us at https://scidsg.org.
 Have feedback? Send us an email at feedback@scidsg.org.
 
-To run Nyx, enter: sudo -u debian-tor nyx
+To run Nyx, enter: -u debian-tor nyx
 
-To configure a Waveshare 2.13 inch e-paper display, enter: curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/waveshare-2_13in-eink-display.sh | sudo bash
+To configure a Waveshare 2.13 inch e-paper display, enter: curl -sSL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/waveshare-2_13in-eink-display.sh | bash
 "

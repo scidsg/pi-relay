@@ -33,7 +33,7 @@ trap error_exit ERR
 
 # Install whiptail if not present
 apt update && apt -y dist-upgrade && apt -y autoremove
-apt install -y whiptail git wget curl gpg ufw fail2ban
+apt install -y whiptail git wget curl gpg ufw fail2ban unattended-upgrades
 
 cd $HOME
 git clone https://github.com/scidsg/pi-relay.git
@@ -139,28 +139,6 @@ maxretry = 2
 EOL
 
 systemctl restart fail2ban
-
-# Configure UFW (Uncomplicated Firewall)
-
-echo "Configuring UFW..."
-
-# Default rules
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow 80/tcp
-ufw allow 443/tcp
-
-# Allow SSH (modify as per your requirements)
-ufw allow ssh
-ufw limit ssh/tcp
-
-# Logging
-ufw logging on
-
-# Enable UFW non-interactively
-echo "y" | ufw enable
-
-echo "UFW configuration complete."
 
 # Disable the trap before exiting
 trap - ERR
