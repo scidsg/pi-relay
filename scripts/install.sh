@@ -22,9 +22,18 @@ A free tool by Science & Design - https://scidsg.org
 EOF
 sleep 3
 
+# Function to display error message and exit
+error_exit() {
+    echo "An error occurred during installation. Please check the output above for more details."
+    exit 1
+}
+
+# Trap any errors and call the error_exit function
+trap error_exit ERR
+
 # Install whiptail if not present
 apt update && apt -y dist-upgrade && apt -y autoremove
-apt install -y whiptail git wget curl gpg
+apt install -y whiptail git wget curl gpg ufw fail2ban
 
 cd $HOME
 git clone https://github.com/scidsg/pi-relay.git
@@ -61,3 +70,103 @@ if [ $exitstatus = 0 ]; then
 else
     echo "You chose Cancel."
 fi
+
+# Enable the "security" and "updates" repositories
+sed -i 's/\/\/\s\+"\${distro_id}:\${distro_codename}-security";/"\${distro_id}:\${distro_codename}-security";/g' /etc/apt/apt.conf.d/50unattended-upgrades
+sed -i 's/\/\/\s\+"\${distro_id}:\${distro_codename}-updates";/"\${distro_id}:\${distro_codename}-updates";/g' /etc/apt/apt.conf.d/50unattended-upgrades
+sed -i 's|//\s*Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|' /etc/apt/apt.conf.d/50unattended-upgrades
+sed -i 's|//\s*Unattended-Upgrade::Remove-Unused-Dependencies "true";|Unattended-Upgrade::Remove-Unused-Dependencies "true";|' /etc/apt/apt.conf.d/50unattended-upgrades
+
+sh -c 'echo "APT::Periodic::Update-Package-Lists \"1\";" > /etc/apt/apt.conf.d/20auto-upgrades'
+sh -c 'echo "APT::Periodic::Unattended-Upgrade \"1\";" >> /etc/apt/apt.conf.d/20auto-upgrades'
+
+# Configure unattended-upgrades
+echo 'Unattended-Upgrade::Automatic-Reboot "true";' | tee -a /etc/apt/apt.conf.d/50unattended-upgrades
+echo 'Unattended-Upgrade::Automatic-Reboot-Time "02:00";' | tee -a /etc/apt/apt.conf.d/50unattended-upgrades
+
+systemctl restart unattended-upgrades
+
+echo "Automatic updates have been installed and configured."
+
+# Configure Fail2Ban
+
+echo "Configuring fail2ban..."
+
+systemctl start fail2ban
+systemctl enable fail2ban
+cp /etc/fail2ban/jail.{conf,local}
+
+cat >/etc/fail2ban/jail.local <<EOL
+[DEFAULT]
+bantime  = 10m
+findtime = 10m
+maxretry = 5
+
+[sshd]
+enabled = true
+
+# 404 Errors
+[nginx-http-auth]
+enabled  = true
+filter   = nginx-http-auth
+port     = http,https
+logpath  = /var/log/nginx/error.log
+maxretry = 5
+
+# Rate Limiting
+[nginx-limit-req]
+enabled  = true
+filter   = nginx-limit-req
+port     = http,https
+logpath  = /var/log/nginx/error.log
+maxretry = 5
+
+# 403 Errors
+[nginx-botsearch]
+enabled  = true
+filter   = nginx-botsearch
+port     = http,https
+logpath  = /var/log/nginx/access.log
+maxretry = 10
+
+# Bad Bots and Crawlers
+[nginx-badbots]
+enabled  = true
+filter   = nginx-badbots
+port     = http,https
+logpath  = /var/log/nginx/access.log
+maxretry = 2
+EOL
+
+systemctl restart fail2ban
+
+# Configure UFW (Uncomplicated Firewall)
+
+echo "Configuring UFW..."
+
+# Default rules
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow 80/tcp
+ufw allow 443/tcp
+
+# Allow SSH (modify as per your requirements)
+ufw allow ssh
+ufw limit ssh/tcp
+
+# Logging
+ufw logging on
+
+# Enable UFW non-interactively
+echo "y" | ufw enable
+
+echo "UFW configuration complete."
+
+# Disable the trap before exiting
+trap - ERR
+
+# Reboot the device
+echo "Rebooting..."
+sleep 5
+reboot
+
