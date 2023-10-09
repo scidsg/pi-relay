@@ -138,7 +138,6 @@ echo "Configuring UFW..."
 # Default rules
 ufw default deny incoming
 ufw default allow outgoing
-ufw allow 80/tcp
 ufw allow $port/tcp
 
 # Allow SSH (modify as per your requirements)
