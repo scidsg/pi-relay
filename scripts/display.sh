@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#Run as root
+if [[ $EUID -ne 0 ]]; then
+  echo "Script needs to run as root. Elevating permissions now."
+  exec sudo /bin/bash "$0" "$@"
+fi
+
 # Welcome message and ASCII art
 cat << "EOF"                                                        
                                                             
@@ -18,14 +24,14 @@ EOF
 sleep 3
 
 # Install required packages for e-ink display
-sudo apt update
-sudo apt-get -y dist-upgrade
-sudo apt-get install -y python3-pip whiptail
+apt update
+apt -y dist-upgrade
+apt install -y python3-pip whiptail
 
-whiptail --title "E-Ink Display Setup" --msgbox "The e-paper hat communicates with the Raspberry Pi using the SPI interface, so you need to enable it.\n\nNavigate to \"Interface Options\" > \"SPI\" and select \"Yes\" to enable the SPI interface." 12 64
-sudo raspi-config
+# Enable SPI interface
+raspi-config nonint do_spi 0
 
-sudo apt-get install -y python3-pip
+apt install -y python3-pip
 
 # Install Waveshare e-Paper library
 git clone https://github.com/waveshare/e-Paper.git
@@ -35,11 +41,11 @@ pip3 install requests python-gnupg stem
 
 # Install other Python packages
 pip3 install RPi.GPIO spidev
-sudo apt-get -y autoremove
+apt -y autoremove
 
 # Enable SPI interface
 if ! grep -q "dtparam=spi=on" /boot/config.txt; then
-    echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
+    echo "dtparam=spi=on" | tee -a /boot/config.txt
     echo "SPI interface enabled."
 else
     echo "SPI interface is already enabled."
@@ -308,4 +314,4 @@ fi
 echo "✅ E-ink display configuration complete. Rebooting your Raspberry Pi..."
 sleep 3
 
-sudo reboot
+reboot
