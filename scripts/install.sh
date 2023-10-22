@@ -31,6 +31,10 @@ error_exit() {
 # Trap any errors and call the error_exit function
 trap error_exit ERR
 
+# Verify the CPU architecture
+architecture=$(dpkg --print-architecture)
+echo "CPU architecture is $architecture"
+
 # Update and upgrade non-interactively
 export DEBIAN_FRONTEND=noninteractive
 apt update && apt -y dist-upgrade -o Dpkg::Options::="--force-confnew" && apt -y autoremove

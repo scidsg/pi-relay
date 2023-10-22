@@ -9,10 +9,6 @@ fi
 # Learn more about relay requirements:
 # https://community.torproject.org/relay/relays-requirements/
 
-# Verify the CPU architecture
-architecture=$(dpkg --print-architecture)
-echo "CPU architecture is $architecture"
-
 # Function to configure Tor as a middle relay
 configure_tor() {
     # Parse the value and the unit from the provided accounting max

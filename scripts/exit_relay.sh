@@ -14,10 +14,6 @@ whiptail --title "Are You Sure You're Sure?" --msgbox "We'll stress this again -
 WIDTH=$(tput cols)
 whiptail --title "Read The Articles 👇" --msgbox "Okay, so you're still here. Just to drive the point home, check out some of these articles about the risks of operating an exit relay from home:\n\n* When a Dark Web Volunteer Gets Raided by The Police, NPR - https://www.npr.org/sections/alltechconsidered/2016/04/04/472992023/when-a-dark-web-volunteer-gets-raided-by-the-police\n\n* What happened when we got subpoenaed over our Tor exit node, Boing Boing - https://boingboing.net/2015/08/04/what-happened-when-the-fbi-sub.html\n\n* Access Now and EFF Condemn the Arrest of Tor Node Operator Dmitry Bogatov in Russia, EFF - https://www.eff.org/deeplinks/2017/04/access-now-and-eff-condemn-arrest-tor-node-operator-dmitry-bogatov-russia" 24 $WIDTH
 
-# Verify the CPU architecture
-architecture=$(dpkg --print-architecture)
-echo "CPU architecture is $architecture"
-
 SERVER_IP=$(hostname -I | awk '{print $1}')
 current_dir=$(pwd)
 
