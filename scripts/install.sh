@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Learn more about relay requirements:
+# https://community.torproject.org/relay/relays-requirements/
+
 #Run as root
 if [[ $EUID -ne 0 ]]; then
   echo "Script needs to run as root. Elevating permissions now."
@@ -14,7 +17,6 @@ cat << "EOF"
   /_)_<_/ (_</_</_ (_/|_/ (_/_    
  /                         /                
 '                         '                 
-
 The easiest way set up a Tor exit, middle, or bridge relay.
 
 A free tool by Science & Design - https://scidsg.org
@@ -38,7 +40,7 @@ echo "CPU architecture is $architecture"
 # Update and upgrade non-interactively
 export DEBIAN_FRONTEND=noninteractive
 apt update && apt -y dist-upgrade -o Dpkg::Options::="--force-confnew" && apt -y autoremove
-apt install -y whiptail git wget curl gpg ufw fail2ban unattended-upgrades bc apt-transport-https apt-listchanges nginx
+apt install -y whiptail git wget curl gpg ufw fail2ban unattended-upgrades bc apt-transport-https apt-listchanges nginx rfkill
 
 # Determine the codename of the operating system
 codename=$(lsb_release -c | cut -f2)
@@ -174,8 +176,6 @@ ufw default deny incoming
 ufw default allow outgoing
 ufw allow 80/tcp
 ufw allow 443/tcp
-
-echo "Disabling SSH access..."
 # ufw deny proto tcp from any to any port 22
 ufw allow ssh
 

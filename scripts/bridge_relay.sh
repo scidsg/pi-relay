@@ -6,9 +6,6 @@ if [[ $EUID -ne 0 ]]; then
   exec sudo /bin/bash "$0" "$@"
 fi
 
-# Learn more about relay requirements:
-# https://community.torproject.org/relay/relays-requirements/
-
 # Function to configure Tor as a middle relay
 configure_tor() {
     # Parse the value and the unit from the provided accounting max

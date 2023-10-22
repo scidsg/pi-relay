@@ -6,9 +6,6 @@ if [[ $EUID -ne 0 ]]; then
   exec sudo /bin/bash "$0" "$@"
 fi
 
-# Learn more about relay requirements:
-# https://community.torproject.org/relay/relays-requirements/
-
 whiptail --title "Exit Relay Warning" --msgbox "You're about to set up an exit relay. Before doing so make sure you understand your local laws and the implications of acting as a Tor exit node.\n\nNever operate an exit relay from home." 16 64
 whiptail --title "Are You Sure You're Sure?" --msgbox "We'll stress this again - make sure you understand your local laws, and NEVER RUN AN EXIT RELAY FROM HOME." 16 64
 WIDTH=$(tput cols)
@@ -300,8 +297,6 @@ chown debian-tor:debian-tor /var/www/html/index.html
 systemctl restart tor
 
 setup_tor_relay
-
-whiptail --title "Router Configuration" --msgbox "If you're operating this relay from a local server, you may need to modify some of your router's settings for the Tor network to find it:\n\n1. First, assign this device a static IP address. Your current IP is $SERVER_IP.\n\n2. Enable port forwarding for $SERVER_IP on port $port.\n\nPlease refer to your router's instructions manual if you're unfamiliar with any of these steps." 24 64
 
 echo "
 ✅ Installation complete!
