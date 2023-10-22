@@ -31,8 +31,9 @@ error_exit() {
 # Trap any errors and call the error_exit function
 trap error_exit ERR
 
-# Install whiptail if not present
-apt update && apt -y dist-upgrade && apt -y autoremove
+# Update and upgrade non-interactively
+export DEBIAN_FRONTEND=noninteractive
+apt update && apt -y dist-upgrade -o Dpkg::Options::="--force-confnew" && apt -y autoremove
 apt install -y whiptail git wget curl gpg ufw fail2ban unattended-upgrades bc apt-transport-https apt-listchanges nginx
 
 # Determine the codename of the operating system
