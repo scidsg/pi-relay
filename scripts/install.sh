@@ -33,7 +33,23 @@ trap error_exit ERR
 
 # Install whiptail if not present
 apt update && apt -y dist-upgrade && apt -y autoremove
-apt install -y whiptail git wget curl gpg ufw fail2ban unattended-upgrades
+apt install -y whiptail git wget curl gpg ufw fail2ban unattended-upgrades bc apt-transport-https apt-listchanges nginx
+
+# Determine the codename of the operating system
+codename=$(lsb_release -c | cut -f2)
+
+# Add the tor repository to the sources.list.d
+echo "deb [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | tee /etc/apt/sources.list.d/tor.list
+echo "deb-src [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | tee -a /etc/apt/sources.list.d/tor.list
+
+# Download and add the gpg key used to sign the packages
+wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | tee /usr/share/keyrings/tor-archive-keyring.gpg >/dev/null
+
+# Update system packages
+apt update && apt -y dist-upgrade && apt -y autoremove
+
+# Install tor and tor debian keyring
+apt install -y tor deb.torproject.org-keyring nyx
 
 cd $HOME
 git clone https://github.com/scidsg/pi-relay.git
@@ -71,18 +87,23 @@ else
     echo "You chose Cancel."
 fi
 
-# Enable the "security" and "updates" repositories
-sed -i 's/\/\/\s\+"\${distro_id}:\${distro_codename}-security";/"\${distro_id}:\${distro_codename}-security";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-sed -i 's/\/\/\s\+"\${distro_id}:\${distro_codename}-updates";/"\${distro_id}:\${distro_codename}-updates";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-sed -i 's|//\s*Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|' /etc/apt/apt.conf.d/50unattended-upgrades
-sed -i 's|//\s*Unattended-Upgrade::Remove-Unused-Dependencies "true";|Unattended-Upgrade::Remove-Unused-Dependencies "true";|' /etc/apt/apt.conf.d/50unattended-upgrades
-
-sh -c 'echo "APT::Periodic::Update-Package-Lists \"1\";" > /etc/apt/apt.conf.d/20auto-upgrades'
-sh -c 'echo "APT::Periodic::Unattended-Upgrade \"1\";" >> /etc/apt/apt.conf.d/20auto-upgrades'
-
 # Configure unattended-upgrades
-echo 'Unattended-Upgrade::Automatic-Reboot "true";' | tee -a /etc/apt/apt.conf.d/50unattended-upgrades
-echo 'Unattended-Upgrade::Automatic-Reboot-Time "02:00";' | tee -a /etc/apt/apt.conf.d/50unattended-upgrades
+cat >/etc/apt/apt.conf.d/50unattended-upgrades <<EOL
+Unattended-Upgrade::Origins-Pattern {
+        "origin=Debian,codename=\${distro_codename}-updates";
+        "origin=Debian,codename=\${distro_codename},label=Debian";
+        "origin=Debian,codename=\${distro_codename},label=Debian-Security";
+        "origin=Debian,codename=\${distro_codename}-security,label=Debian-Security";
+};
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "02:00";
+EOL
+
+cat >/etc/apt/apt.conf.d/20auto-upgrades <<EOL
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+EOL
 
 systemctl restart unattended-upgrades
 
@@ -139,6 +160,35 @@ maxretry = 2
 EOL
 
 systemctl restart fail2ban
+
+# Configure UFW (Uncomplicated Firewall)
+echo "Configuring UFW..."
+
+# Default rules
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow 80/tcp
+ufw allow 443/tcp
+
+echo "Disabling SSH access..."
+# ufw deny proto tcp from any to any port 22
+ufw allow ssh
+
+# Enable UFW non-interactively
+echo "y" | ufw enable
+
+echo "🔒 Firewall configured."
+
+# Block Bluetooth
+echo "Disabling Bluetooth..."
+rfkill block bluetooth
+echo "🔒 Bluetooth disabled."
+
+# Disable USB
+echo "Disabling USB access..."
+echo "dtoverlay=disable-usb" | tee -a /boot/config.txt
+echo "🔒 USB access disabled."
+sleep 3
 
 # Disable the trap before exiting
 trap - ERR

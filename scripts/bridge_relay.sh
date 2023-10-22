@@ -13,43 +13,6 @@ fi
 architecture=$(dpkg --print-architecture)
 echo "CPU architecture is $architecture"
 
-# Install Packages
-apt-get install -y apt-transport-https whiptail unattended-upgrades apt-listchanges bc
-
-# Determine the codename of the operating system
-codename=$(lsb_release -c | cut -f2)
-
-# Add the tor repository to the sources.list.d
-echo "deb [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | tee /etc/apt/sources.list.d/tor.list
-echo "deb-src [arch=$architecture signed-by=/usr/share/keyrings/tor-archive-keyring.gpg] https://deb.torproject.org/torproject.org $codename main" | tee -a /etc/apt/sources.list.d/tor.list
-
-# Download and add the gpg key used to sign the packages
-wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --dearmor | tee /usr/share/keyrings/tor-archive-keyring.gpg >/dev/null
-
-# Update system packages
-apt-get update && apt-get -y dist-upgrade && apt-get -y autoremove
-
-# Install tor and tor debian keyring
-apt-get install -y tor deb.torproject.org-keyring nyx
-
-# Configure Tor Auto Updates
-cat > /etc/apt/apt.conf.d/50unattended-upgrades << EOL
-Unattended-Upgrade::Origins-Pattern {
-    "origin=Debian,codename=${distro_codename},label=Debian-Security";
-    "origin=TorProject";
-};
-Unattended-Upgrade::Package-Blacklist {
-};
-Unattended-Upgrade::Automatic-Reboot "true";
-EOL
-
-cat > /etc/apt/apt.conf.d/20auto-upgrades << EOL
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::AutocleanInterval "5";
-APT::Periodic::Unattended-Upgrade "1";
-APT::Periodic::Verbose "1";
-EOL
-
 # Function to configure Tor as a middle relay
 configure_tor() {
     # Parse the value and the unit from the provided accounting max
@@ -130,26 +93,6 @@ setup_tor_relay
 
 SERVER_IP=$(hostname -I | awk '{print $1}')
 whiptail --title "Router Configuration" --msgbox "If you're operating this relay from a local server, you may need to modify some of your router's settings for the Tor network to find it:\n\n1. First, assign this device a static IP address. Your current IP is $SERVER_IP.\n\n2. Enable port forwarding for $SERVER_IP on port $port.\n\nPlease refer to your router's instructions manual if you're unfamiliar with any of these steps." 20 64
-
-# Configure UFW (Uncomplicated Firewall)
-
-echo "Configuring UFW..."
-
-# Default rules
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow $port/tcp
-
-# Allow SSH (modify as per your requirements)
-ufw allow ssh
-ufw limit ssh/tcp
-# Logging
-ufw logging on
-
-# Enable UFW non-interactively
-echo "y" | ufw enable
-
-echo "UFW configuration complete."
 
 echo "
 ✅ Installation complete!
