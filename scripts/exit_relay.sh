@@ -298,6 +298,22 @@ systemctl restart tor
 
 setup_tor_relay
 
+# Configure UFW (Uncomplicated Firewall)
+echo "Configuring UFW..."
+
+# Default rules
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw allow $7
+ufw allow ssh
+
+# Enable UFW non-interactively
+echo "y" | ufw enable
+
+echo "🔒 Firewall configured."
+
 echo "
 ✅ Installation complete!
                                                
