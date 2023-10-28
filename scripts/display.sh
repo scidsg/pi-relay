@@ -304,7 +304,7 @@ if __name__ == '__main__':
 EOL
 
 # Download the splash screen
-wget https://raw.githubusercontent.com/scidsg/pi-relay/main/images/splash.png
+wget https://raw.githubusercontent.com/scidsg/pi-relay/main/images/splash.png -O /home/pi/splash.png
 
 # Add a line to the .bashrc to run the relay_status.py script on boot
 if ! grep -q "sudo python3 /home/pi/relay_status.py" /home/pi/.bashrc; then
