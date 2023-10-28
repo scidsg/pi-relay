@@ -101,15 +101,20 @@ Unattended-Upgrade::Origins-Pattern {
         "origin=Debian,codename=\${distro_codename},label=Debian";
         "origin=Debian,codename=\${distro_codename},label=Debian-Security";
         "origin=Debian,codename=\${distro_codename}-security,label=Debian-Security";
+        "origin=TorProject";
 };
 Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
 Unattended-Upgrade::Automatic-Reboot "true";
 Unattended-Upgrade::Automatic-Reboot-Time "02:00";
+Unattended-Upgrade::Package-Blacklist {
+};
 EOL
 
 cat >/etc/apt/apt.conf.d/20auto-upgrades <<EOL
 APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::AutocleanInterval "5";
 APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::Verbose "1";
 EOL
 
 systemctl restart unattended-upgrades
