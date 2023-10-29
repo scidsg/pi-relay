@@ -10,7 +10,7 @@ Pi Relay is a free and open-source tool that transforms a Raspberry Pi into a re
 ### Install an e-Paper Display:
 
 ```
-curl --proto '=https' --tlsv1.2 -sSfL https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/display.sh | bash
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/scidsg/pi-relay/main/scripts/display.sh | bash
 ```
 
 ## System Requirements
